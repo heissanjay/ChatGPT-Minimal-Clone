@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch , onMounted} from 'vue';
 
 const userQueryText = ref("");
 const chatContainer = ref(null);
@@ -46,6 +46,7 @@ function handleUserSubmit() {
         if (index !== -1) {
           messages.splice(index, 1, assistantResponse);
         }
+        localStorage.setItem('messages', JSON.stringify(messages));
         scrollToBottom();
       });
   } catch (err) {
@@ -53,15 +54,24 @@ function handleUserSubmit() {
   }
 }
 
-watch(messages, () => {
-  scrollToBottom();
-});
-
 function scrollToBottom() {
   if (chatContainer.value) {
     chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
   }
 }
+
+onMounted(
+  ()=> {
+    const previousMessage = JSON.parse(localStorage.getItem('messages')) || [];
+    messages.push(...previousMessage);
+    scrollToBottom();
+  }
+);
+
+watch(messages, () => {
+  scrollToBottom();
+});
+
 </script>
 
 <template>
